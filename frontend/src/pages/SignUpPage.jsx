@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { ShipWheelIcon } from "lucide-react";
 import { Link } from "react-router";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { signup } from "../lib/api";
 
 
 
@@ -11,9 +13,19 @@ const SignUpPage = () => {
     password: "",
   });
 
+  const queryClient = useQueryClient();
+
+
+  // to connetect with backend when click on create button
+  const { mutate: SignupMutation, isPending, error } = useMutation({
+    mutationFn: signup,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["authUser"] }),
+  });
+
 
   const handleSignup = (e) => {
     e.preventDefault();
+    SignupMutation(signupData);
 
   };
 
@@ -32,6 +44,15 @@ const SignUpPage = () => {
               Streamify
             </span>
           </div>
+
+          {/* error message */}
+          {error && (
+            <div className="alert text-sm alert-error mb-4">
+              <span>{error.response.data.message}</span>
+            </div>
+          )}
+
+
           <div className="w-full">
             <form onSubmit={handleSignup}>
               <div className="space-y-4">
@@ -71,7 +92,9 @@ const SignUpPage = () => {
                       required
                     />
                   </div>
-                  {/* PASSWORD */}
+
+
+                  {/* password */}
                   <div className="form-control w-full">
                     <label className="label">
                       <span className="label-text">Password</span>
@@ -101,9 +124,17 @@ const SignUpPage = () => {
                   </div>
                 </div>
 
-                <button className="btn btn-primary w-full" type="submit">
-                  Create
 
+                {/* button */}
+                <button className="btn btn-primary w-full" type="submit">
+                  {isPending ? (
+                    <>
+                      <span className="loading loading-spinner loading-xs"></span>
+                      loading...
+                    </>
+                  ) : (
+                    "Create account"
+                  )}
                 </button>
 
                 <div className="text-center mt-4">

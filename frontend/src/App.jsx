@@ -16,7 +16,7 @@ import useAuthUser from './hooks/useAuthUser.js';
 
 
 // this is only the try
-
+//tanstack query 
 
 const App = () => {
   //tanstack query

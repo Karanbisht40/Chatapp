@@ -2,11 +2,11 @@ import { StreamChat } from 'stream-chat';
 import "dotenv/config";
 
 // data in getstream.io
-const apiKey = process.env.STEAM_API_KEY;
-const apiSecret = process.env.STEAM_API_SECRET;
+const apiKey = process.env.STREAM_API_KEY;
+const apiSecret = process.env.STREAM_API_SECRET;
 
 if (!apiKey || !apiSecret) {
-    console.error("Stream API key or sceret is missing");
+    console.error("Stream API key or secret is missing");
 }
 
 const streamClient = StreamChat.getInstance(apiKey, apiSecret);

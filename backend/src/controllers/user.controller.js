@@ -11,7 +11,7 @@ export async function getRecommendedUsers(req, res) {
         const recommendUsers = await User.find({
             $and: [
                 { _id: { $ne: currentUserId } },// It filters out the currently logged-in user themselves So you don’t see your own profile in the recommendations
-                { $id: { $nin: currentUser.friends } },//exclude current users friend
+                { _id: { $nin: currentUser.friends } },//exclude current users friend
                 { isOnboarded: true }, // who completed their profile
             ],
         });
@@ -27,7 +27,7 @@ export async function getMyFriends(req, res) {
     try {
         const user = await User.findById(req.user.id)
             .select("friends") //This tells MongoDB to only retrieve the friends field from the user document not other fields like email or password.
-            .populate("friends", "fullname", "profilePic", "nativeLanguage, learningLanguage");
+            .populate("friends", "fullName profilePic nativeLanguage learningLanguage");
 
         res.status(200).json(user.friends);
     } catch (error) {
@@ -73,44 +73,43 @@ export async function sendFriendRequest(req, res) {
         });
         res.status(201).json(friendRequest);
     } catch (error) {
-        console.error("Error in sendingFriendRequest constroller".error.message);
+        console.error("Error in sendingFriendRequest controller", error.message);
         res.status(500).json({ message: "Internal Server Error" });
     }
 }
 export async function acceptFriendRequest(req, res) {
-    try {
-        const { id: requestId } = req.params;
+  try {
+    const { id: requestId } = req.params;
 
-        const friendRequest = await FriendRequest.findById(requestId);
+    // ATOMIC + SAFE
+    const friendRequest = await FriendRequest.findOneAndDelete({
+      _id: requestId,
+      recipient: req.user.id,
+    });
 
-        if (!friendRequest) {
-            return res.status(400).json({ message: "Friend request not found" });
-        }
-
-        // verify the curent user is the recipient
-        if (friendRequest.recipient.toString() !== req.user.id) {
-            return res.status(403).json({ message: " you are not authorized to accept this request" });
-
-        }
-        friendRequest.status = "accepted";
-        await friendRequest.save();
-
-        //add each user to the other's friend array
-        // $addtoset add a elemnt to an array only if they do not already exist
-        await User.findByIdAndUpdate(friendRequest.sender, {
-            $addToSet: { friends: friendRequest.recipient },
-        });
-        await User.findByIdAndUpdate(friendRequest.recipient, {
-            $addToSet: { friends: friendRequest.sender },
-        });
-        return res.status(200).json({ message: "Friend request accepted" });
-
-    } catch (error) {
-        console.log("Error in acceptFriendRequest controller", error.message);
-        res.status(500).json({ message: "Internal Server Error" });
-
+    // If already accepted / deleted → do NOT error
+    if (!friendRequest) {
+      return res.status(200).json({
+        message: "Friend request already handled",
+      });
     }
+
+    // Add both users as friends
+    await User.findByIdAndUpdate(friendRequest.sender, {
+      $addToSet: { friends: friendRequest.recipient },
+    });
+
+    await User.findByIdAndUpdate(friendRequest.recipient, {
+      $addToSet: { friends: friendRequest.sender },
+    });
+
+    return res.status(200).json({ message: "Friend request accepted" });
+  } catch (error) {
+    console.error("Error in acceptFriendRequest controller", error.message);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
 }
+
 
 export async function getFriendRequests(req, res) {
     try {

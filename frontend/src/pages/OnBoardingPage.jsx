@@ -5,6 +5,7 @@ import toast from "react-hot-toast";
 import { completeOnboarding } from "../lib/api";
 import { LoaderIcon, MapPinIcon, ShipWheelIcon, ShuffleIcon } from "lucide-react";
 import { LANGUAGES } from "../constants";
+import navigate from "react-dom"
 
 const OnboardingPage = () => {
   const { authUser } = useAuthUser();
@@ -23,11 +24,9 @@ const OnboardingPage = () => {
     mutationFn: completeOnboarding,
     onSuccess: () => {
       toast.success("Profile onboarded successfully");
-      // queryClient.invalidateQueries({ queryKey: ["authUser"] });
-      queryClient.setQueryData(["authUser"], (oldData) => ({
-        ...oldData,
-        isOnboarded: true,
-      }));
+      queryClient.invalidateQueries({ queryKey: ["authUser"] });
+
+      navigate("/", { replace: true }); // chnges
     },
 
     onError: (error) => {

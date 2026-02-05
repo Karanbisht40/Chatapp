@@ -2,7 +2,7 @@ import { LoaderIcon } from 'lucide-react'
 import React from 'react'
 import { useThemeStore } from '../store/useThemeStore';
 
-const PageLoader = () => {
+const Pageloader = () => {
   const {theme} = useThemeStore();
   return (
     //pageloadaer
@@ -14,4 +14,4 @@ const PageLoader = () => {
 
 }
 
-export default PageLoader;
+export default Pageloader;

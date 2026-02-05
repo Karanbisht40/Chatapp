@@ -10,7 +10,7 @@ import OnboardingPage from "./pages/OnBoardingPage.jsx";
 
 import { Toaster } from 'react-hot-toast'
 
-import Pageloader from './components/PageLoader.jsx';
+import PageLoader from './components/PageLoader.jsx';
 import useAuthUser from './hooks/useAuthUser.js';
 import Layout from './components/Layout.jsx';
 import { useThemeStore } from './store/useThemeStore.js';
@@ -24,7 +24,7 @@ const App = () => {
 
   const isAuthenticated = Boolean(authUser);
   const isOnboarded = authUser?.isOnboarded;
-  if (isLoading) return <Pageloader />
+  if (isLoading) return <PageLoader />
 
   return (
     <div className="h-screen text-5xl" data-theme={theme}>

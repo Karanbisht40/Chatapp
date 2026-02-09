@@ -13,14 +13,7 @@ const SignUpPage = () => {
     password: "",
   });
 
-  // const queryClient = useQueryClient();
-
-
-  // to connetect with backend when click on create button
-  // const { mutate: SignupMutation, isPending, error } = useMutation({
-  //   mutationFn: signup,
-  //   onSuccess: () => queryClient.invalidateQueries({ queryKey: ["authUser"] }),
-  // });
+ //function to handle signup form submission
   const { isPending, error, signupMutation: SignupMutation } = useSignUp();
 
 
@@ -52,7 +45,6 @@ const SignUpPage = () => {
               <span>{error.response.data.message}</span>
             </div>
           )}
-
 
           <div className="w-full">
             <form onSubmit={handleSignup}>
